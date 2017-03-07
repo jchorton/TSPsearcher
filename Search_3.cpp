@@ -31,6 +31,7 @@ struct Node {
 void readFile(std::string fileName, vector<Node> &graphNodes);
 void edgeGen(vector<Node> &graphNodes);
 int distCalc(struct Node A, struct Node B);
+void clearNullEdges(vector<Node> &graphNodes);
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
@@ -56,7 +57,7 @@ int main(int argc, char** argv) {
 
 #if DEBUG_B
 	for (unsigned int i = 0; i < graphNodes.size(); i++) {
-		for (unsigned int j = 0; j < graphNodes.size(); j++) {
+		for (unsigned int j = 0; j < graphNodes[i].edgeList.size(); j++) {
 			cout << "cityFrom = " << graphNodes[i].edgeList[j].cityFrom << '\n';
 			cout << "cityTo = " << graphNodes[i].edgeList[j].cityTo << '\n';
 			cout << "distance = " << graphNodes[i].edgeList[j].distance << '\n';
@@ -102,13 +103,26 @@ void readFile(std::string fileName, vector<Node> &graphNodes) {
 void edgeGen(vector<Node> &graphNodes) {
 	for (unsigned int i = 0; i < graphNodes.size(); i++) {
 		for (unsigned int j = 0; j < graphNodes.size(); j++) {
-			graphNodes[i].edgeList[j].cityFrom = i;
-			graphNodes[i].edgeList[j].cityTo = j;
-			graphNodes[i].edgeList[j].distance = distCalc(graphNodes[i], graphNodes[j]);
+			if (i != j) {
+				graphNodes[i].edgeList[j].cityFrom = i;
+				graphNodes[i].edgeList[j].cityTo = j;
+				graphNodes[i].edgeList[j].distance = distCalc(graphNodes[i], graphNodes[j]);
+			}
 		}
 	}
+	clearNullEdges(graphNodes);
 }
 
 int distCalc(struct Node cityA, struct Node cityB) {
 	return round(sqrt(pow(cityA.X - cityB.X, 2) + pow(cityA.Y - cityB.Y, 2)));
+}
+
+void clearNullEdges(vector<Node> &graphNodes) {
+	for (unsigned int i = 0; i < graphNodes.size(); i++) {
+		for (unsigned int j = 0; j < graphNodes.size(); j++) {
+			if (graphNodes[i].edgeList[j].distance == -1) {
+				graphNodes[i].edgeList.erase(graphNodes[i].edgeList.begin() + j);
+			}
+		}
+	}
 }

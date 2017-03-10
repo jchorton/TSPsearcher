@@ -18,7 +18,7 @@ CXXFLAGS += -g
 ####################
 
 # SRCS is a standard name for the source files (.cpp). 
-SRC1 = search.cpp
+SRC1 = nNeighbor.cpp
 #SRC2 = 
 #SRC3 = 
 #SRC4 = 
@@ -40,7 +40,7 @@ HEADERS = ${HEADER1}
 
 # Your executable files. 
 # Edit as needed.
-PROG1 = tspSearch
+PROG1 = nNeighbor
 # PROG2 = 
 # PROG3 = 
 PROGS = ${PROG1}

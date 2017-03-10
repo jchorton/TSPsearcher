@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# CS 325 Project 4
+#
+# This script will run our TSP search programs consecutively.
+# The fast one will run first and store the values generated.
+# The second will begin running and, if time permits, it
+# will replace the first result with a better result.
+#
+# Don't forget to use "chmod 744 runSearch" to authorize it!
+
+
+# Checking for proper usage
+if [ $# -ne 1 ]
+	then
+		echo "USAGE: runSearch [text_filename]"
+		exit 1
+fi
+
+
+# Run fast program
+printf "\nExecuting Nearest Neighbor:\n"
+./nNeighbor "$@"
+
+
+# Run slow program
+printf "\nExecuting <insert algorithm name here>\n"

@@ -19,21 +19,33 @@
 #include "Threads.h"
 
 int main(int argc, char** argv) {
-	if (argc < 2) {
-		cout << "Usage: ./TSP [inputfile]\n"
+
+	bool incVar_overRide = false;
+
+	if (argc < 2 || argc > 4) {
+		cout << "Usage: ./TSP [inputfile] [optional int 1]\n"
 			<< "TSP requires Euclidian distance calculations, so\n"
 			<< "inputfile format is space delimited INTEGERS like:\n"
 			<< "city0 X-coordinate Y-coordinate\n"
 			<< "city1 X-coordinate Y-coordinate\n"
-			<< "with only 3 ints per line & at least 2 lines." << "\n";
+			<< "with only 3 ints per line & at least 2 lines.\n";
 		exit(1);
+	}
+	else if (argc == 3) {
+		if (atoi(argv[2]) < 1 || atoi(argv[2]) > 1) {
+			cout << "Optional argument must be 1 or omitted!\n";
+			exit(1);
+		}
+		else {
+			incVar_overRide = true;
+		}
 	}
 
 	// Start timing
 	clock_t start, stop;
 	start = clock();
 
-	// Read inut file names.
+	// Read in file names.
 	string inFile, outFile;
 	inFile = outFile = argv[1];
 	outFile.append(".tour");
@@ -46,8 +58,27 @@ int main(int argc, char** argv) {
 	tsp.readCities();
 	cout << "Number of cities read from file: " << tsp.V << "\n";
 
+	// Base case V == 0, V == 2. V == 1 works!
+	int oneStopTrip;
+	if (V == 0) {
+		cout << "InputFile empty! Please check your file and try again!\n";
+		exit(1);
+	} else if (V == 2) {// V == 1 works!
+		oneStopTrip = tsp.calcDistance(tsp.cities[0], tsp.cities[1]);
+		cout << "Just two cities entered, distance = " << oneStopTrip << "\n";
+		exit(0);
+	}
+
+	// Guard against cities < NUM_THREADS.
+	int threadGaurd;
+	if (V < NUM_THREADS) {
+		threadGaurd = V;
+	} else {
+		threadGaurd = NUM_THREADS;
+	}
+
 	// Populate V x V matrix with calculated edge distances.
-	tsp.loadMatrix();
+	tsp.loadMatrix(threadGaurd);
 
 	// Find an MST in graph using Prim's algorithm.
 	tsp.findMST();
@@ -56,39 +87,29 @@ int main(int argc, char** argv) {
 	tsp.matchMST();
 
 	// Create array of thread objects.
-	Thread threads[NUM_THREADS];
+	Thread threads[threadGaurd];
 
 	int pathLength = INT_MAX;
 	int bplIndex;
-	int terminus = NUM_THREADS;
+	int terminus = threadGaurd;
 
-	/* This if/else block used to fine tune the execution time of TSP
+	/* This block used to fine tune the execution time of TSP
 		when running higher values of input cities vs. the desired
-		level of accuracy.  Test against known optimal solutions.*/
+		level of accuracy.  Test against known optimal solutions.
+		Formula developed from fit data targeting ~90 seconds, which 
+		is needed as V approaches 15,000.  Once V gets to ~15,000,
+		then incVar = V. */
+
 	// Advance starting node incVar for each run by:
-	int incVar;
-	if (V < 500)
+	int incVar = 1.755 * pow(10, -10) * pow(V, 3.342) + 0.5;
+	if (incVar < 1)
 		incVar = 1;
-	else if (V >= 500 && V < 1000)
-		incVar = 2;
-	else if (V >= 1000 && V < 1500)
-		incVar = 4;
-	else if (V >= 1500 && V < 2000)
-		incVar = 8;
-	else if (V >= 2000 && V < 2500)
-		incVar = 16;
-	else if (V >= 2500 && V < 3000)
-		incVar = 32;
-	else if (V >= 3000 && V < 3500)
-		incVar = 64;
-	else if (V >= 3500 && V < 4000)
-		incVar = 128;
-	else if (V >= 4000 && V < 4500)
-		incVar = 256;
-	else if (V >= 4500 && V < 5000)
-		incVar = 512;
-	else if (V >= 5000)
-		incVar = 1024;
+	if (incVar > V) 
+		incVar = V;
+	if (incVar_overRide == true) {
+		incVar = 1;
+		cout << "Note: Time required to reach Optimal Solution unrestricted!\n";
+	}
 
 	// Start at node:
 	int node = 0;
@@ -99,7 +120,7 @@ int main(int argc, char** argv) {
 	// Thread manager - incrementaly advance by (NUM_THREADS * incVar) nodes.
 	int spool = V;
 	while (spool >= incVar) {
-		if (spool < (NUM_THREADS * incVar)) {
+		if (spool < (threadGaurd * incVar)) {
 			terminus = spool / incVar;
 		}
 		for (int i = 0; i < terminus; i++) {
@@ -152,12 +173,18 @@ int main(int argc, char** argv) {
 [4] https://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
 [5] https://www.go4expert.com/articles/writing-multithreaded-program-cpp-t29980/
 [6] Lecture materials and programs covered in CS344-400-F16, B. Brewster, Oregon State University.
-[7] "C++ Multithreading Cookbook", 2014, Milos Ljumovic, various.
-[8] https://en.wikipedia.org/wiki/Christofides_algorithm
-[9] http://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
-[10] http://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
-[11] http://www.geeksforgeeks.org/eulerian-path-and-circuit/
-[12] http://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
-[13] http://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
-[14] http://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
+[7] "C++ Multithreading Cookbook", 2014, M. Ljumovic.
+[8] "C++ Concurrency in Action: Practical Multithreading", 1st Ed., A Williams.
+[9] https://en.wikipedia.org/wiki/Christofides_algorithm
+[10] http://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
+[11] http://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
+[12] http://www.geeksforgeeks.org/eulerian-path-and-circuit/
+[13] http://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
+[14] http://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
+[15] http://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
+
+Optimal tour lengths:
+tsp_example_1.txt = 108159
+tsp_example_2.txt = 2579
+tsp_example_3.txt = 1573084
 */

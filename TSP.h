@@ -1,5 +1,5 @@
 /******************************************************************************
-* TSP.h is the header file for TSP.cpp - implements Christofides algorithm.
+* TSP.h is the header file for TSP.cpp
 * CS-325-400-W17	Project 4		17 March 2017
 * Jonathan Horton	hortonjo@oregonstate.edu
 * Chris Kearns		kearnsc@oregonstate.edu
@@ -33,7 +33,7 @@ using std::string;
 using std::vector;
 
 #define DEBUG 0
-#define NUM_THREADS 5
+#define NUM_THREADS 6
 #define RUN_SHORTER 5
 
 class TSP {
@@ -66,7 +66,7 @@ public:
 	// Methods:
 	int calcDistance(struct City city1, struct City city2);
 	void readCities();
-	void loadMatrix();
+	void loadMatrix(int threadGaurd);
 	void findMST();
 	void matchMST();
 	int findBestPath(int);

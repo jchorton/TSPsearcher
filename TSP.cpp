@@ -1,5 +1,5 @@
 /******************************************************************************
-* TSP.cpp is the implementation file for TSP.cpp
+* TSP.cpp is the implementation file for TSP.h
 * CS-325-400-W17	Project 4		17 March 2017
 * Jonathan Horton	hortonjo@oregonstate.edu
 * Chris Kearns		kearnsc@oregonstate.edu
@@ -107,11 +107,11 @@ void *populateMatrix(void* args) {
 }
 
 // Populates graph matrix via threading routines. Runs O(~n^3) [look at populateMatrix].
-void TSP::loadMatrix() {
-	int someThreads = (V / NUM_THREADS) * 0.25;
-	int temp = (V / NUM_THREADS) - someThreads;
-	int remaining = V - (temp * NUM_THREADS);
-	int theRest = NUM_THREADS / 2 + 1;
+void TSP::loadMatrix(int threadGuard) {
+	int someThreads = (V / threadGuard) * 0.25;
+	int temp = (V / threadGuard) - someThreads;
+	int remaining = V - (temp * threadGuard);
+	int theRest = threadGuard / 2 + 1;
 
 	int index = 0;
 	for (int i = 0; i < theRest; i++) {
@@ -120,17 +120,17 @@ void TSP::loadMatrix() {
 		endIndex[i] = index;
 		index++;
 	}
-	int remainingThreads = NUM_THREADS - theRest + 1;
+	int remainingThreads = threadGuard - theRest + 1;
 	int give2each = remaining / remainingThreads;
 
 	// Distribute remaining threads.
-	for (int i = theRest; i < NUM_THREADS; i++) {
+	for (int i = theRest; i < threadGuard; i++) {
 		startIndex[i] = index;
 		index += (temp + give2each - 1);
 		endIndex[i] = index;
 		index++;
 	}
-	endIndex[NUM_THREADS - 1] = V - 1;
+	endIndex[threadGuard - 1] = V - 1;
 
 	int rc;
 	void *threadStatus;
@@ -145,7 +145,7 @@ void TSP::loadMatrix() {
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	// Create thread(s).
-	for (int i = 0; i < NUM_THREADS; i++) {
+	for (int i = 0; i < threadGuard; i++) {
 		data[i].tid = i;
 		data[i].tsp = this;
 		rc = pthread_create(&thread[i], &attr, populateMatrix, (void*)&data[i]);
@@ -157,7 +157,7 @@ void TSP::loadMatrix() {
 
 	// Destroy threads / wait for other threads to finish.
 	pthread_attr_destroy(&attr);
-	for (int i = 0; i < NUM_THREADS; i++) {
+	for (int i = 0; i < threadGuard; i++) {
 		rc = pthread_join(thread[i], &threadStatus);
 		if (rc) {
 			cout << "ERROR: pthread_join() returned error: " << rc << "\n";
@@ -399,7 +399,7 @@ int TSP::_2Opt(int **graph, vector<int> &path, int &pathLength, int V) {
 			v2 = (j + 1) % V;
 			if (pathIsShorter(graph, path[u1], path[v1], path[u2], path[v2], pathLength)) {
 				edgeSwap(path, i+1, j, V);
-				if (pathLength - priorDistance < RUN_SHORTER && count == RUN_SHORTER) {
+				if ((pathLength - priorDistance < RUN_SHORTER) && (count == RUN_SHORTER)) {
 					break;
 				}
 				if (pathLength - priorDistance > RUN_SHORTER) {

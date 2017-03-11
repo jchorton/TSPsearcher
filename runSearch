@@ -24,4 +24,5 @@ printf "\nExecuting Nearest Neighbor:\n"
 
 
 # Run slow program
-printf "\nExecuting <insert algorithm name here>\n"
+printf "\nExecuting Christophides:\n"
+./TSP "$@"

@@ -1,12 +1,17 @@
 /******************************************************************************
-* TSP is a approximation solution for the special case Euclidian Distance 
-* Traveling Salesman Problem utilizing the Christofides algorithm [8]:
-*   Create a minimum spanning tree T of G.
-*   Let O be the set of vertices with odd degree in T.
-*   Find min-weight matching M in induced subgraph given by vertices from O.
-*   Combine edges of M and T to form a connected multigraph H.
-*   Form an Eulerian circuit in H.
-*   Make the circuit into a Hamiltonian circuit by skipping repeated vertices.
+* TSP is an implementation of the approximation solution for the special case
+* Euclidian Distance Traveling Salesman Problem utilizing the Christofides
+* algorithm [8]:
+*  Create a minimum spanning tree T of complete undirected graph G.
+*  Let O be the set of vertices with odd degree in T. Set O will have an even
+   number of vertices.
+*  Find a minimum-weight perfect matching M in the induced subgraph given by
+   the vertices from O.
+*  Combine the edges of M and T to form a connected multigraph H in which each
+   vertex has even degree.
+*  Form an Eulerian circuit in H.
+*  Make the Eulerian circuit into a Hamiltonian circuit by skipping repeated
+   vertices (shortcutting).
 * main.cpp, dependent on Threads.h, Threads.cpp, TSP.h, and TSP.cpp
 * CS-325-400-W17	Project 4		17 March 2017
 * Jonathan Horton	hortonjo@oregonstate.edu

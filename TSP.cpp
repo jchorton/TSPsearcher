@@ -295,7 +295,7 @@ void TSP::eulerPath(int index, vector<int> &path) {
 				}
 			index = next2;
 		}
-	}
+	}// Get the last leg of the journey.
 	path.push_back(index);
 	delete[] temp;
 }
@@ -324,7 +324,7 @@ void TSP::hamiltonPath(vector<int> &path, int &pathLength) {
 		else {
 			nextNode = path.erase(nextNode);
 		}
-	}
+	}// Get the last leg of the journey.
 	pathLength += graph[*currNode][*nextNode];
 }
 

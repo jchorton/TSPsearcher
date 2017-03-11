@@ -151,11 +151,6 @@ int main(int argc, char** argv) {
 	// Store best pathLength.
 	tsp.tourGen(bplIndex);
 
-//	// Attempt to further optimze solution.
-//	for (int i = 0; i < RUN_SHORTER; i++) {
-//		tsp.call2Opt();
-//	}
-
 	// stdout >> *.tour file.
 	tsp.printResult();
 

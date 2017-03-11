@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 		then incVar = V. */
 
 	// Advance starting node incVar for each run by:
-	int incVar = 1.755 * pow(10, -10) * pow(V, 3.342) + 0.5;
+	int incVar = 5.18 * pow(10, -10) * pow(V, 3.224) + 0.5;
 	if (incVar < 1)
 		incVar = 1;
 	if (incVar > V) 
@@ -109,6 +109,9 @@ int main(int argc, char** argv) {
 	if (incVar_overRide == true) {
 		incVar = 1;
 		cout << "Note: Time required to reach Optimal Solution unrestricted!\nProcessing...\n";
+	}
+	else {
+		cout << "Processing...\n";
 	}
 
 	// Start at node:
@@ -162,12 +165,12 @@ int main(int argc, char** argv) {
 }
 
 /* CITATIONS: Code adapted from the following:
-[1] Various lecture materials CS325-400-W17, J. Shulfort, Oregon State University.
+[1] Various lecture materials, algorithms, and programs, CS325-400-W17, J. Shulfort, et. al. @Oregon State University.
 [2] http://man7.org/linux/man-pages/man3/pthread_create.3.html
 [3] http://man7.org/linux/man-pages/man3/strerror.3.html
 [4] https://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
 [5] https://www.go4expert.com/articles/writing-multithreaded-program-cpp-t29980/
-[6] Lecture materials and programs covered in CS344-400-F16, B. Brewster, Oregon State University.
+[6] Various lecture materials and programs, CS344-400-F16, B. Brewster, et. al. @Oregon State University.
 [7] "C++ Multithreading Cookbook", 2014, M. Ljumovic.
 [8] "C++ Concurrency in Action: Practical Multithreading", 1st Ed., A Williams.
 [9] https://en.wikipedia.org/wiki/Christofides_algorithm

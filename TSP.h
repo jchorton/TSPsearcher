@@ -45,7 +45,7 @@ private:
 	string inFileName;
 	string outFileName;
 	vector<int>oddNodes;
-	void getNodeCount();
+	void getCityCount();
 	void findOddNodes();
 	int nearestNextNode(int *index, bool *MSTBuffer);
 protected:
@@ -69,10 +69,10 @@ public:
 	void loadMatrix(int threadGaurd);
 	void findMST();
 	void matchMST();
-	int findBestPath(int);
-	void tourGen(int);
-	void eulerPath(int pos, vector<int> &);
-	void hamiltonPath(vector<int> &, int&);
+	int findBestPath(int index);
+	void tourGen(int index);
+	void eulerPath(int index, vector<int> &path);
+	void hamiltonPath(vector<int> &path, int&pathLength);
 	int _2Opt(int **graph, vector<int> &path, int &pathLength, int V);
 	void call2Opt();
 	bool pathIsShorter(int **graph, int v1, int v2, int v3, int v4, int &pathLength);

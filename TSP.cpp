@@ -12,7 +12,7 @@ TSP::TSP(string inFile, string outFile) {
 	inFileName = inFile;
 	outFileName = outFile;
 
-	getNodeCount();
+	getCityCount();
 
 	// Allocate memory and initialize graph.
 	graph = new int*[V];
@@ -42,7 +42,7 @@ TSP::~TSP() {
 }
 
 // Returns node V (city) count in input file and updates TSP::V.
-void TSP::getNodeCount() {
+void TSP::getCityCount() {
 	int numLines = 0;
 	ifstream inStream;
 	inStream.open(inFileName.c_str(), ios::in);
@@ -176,15 +176,16 @@ void TSP::findMST() {
 	bool MSTbuffer[V];
 	int parent[V];
 
-	for (int v = 0; v < V; v++) {
-		index[v] = INT_MAX;
-		MSTbuffer[v] = false;
+	for (int i = 0; i < V; i++) {
+		index[i] = INT_MAX;
+		MSTbuffer[i] = false;
 	}
 
-	// Root node.
+	// Root nodes.
 	index[0] = 0;
 	parent[0] = -1;
 
+	// Find nearest node not yet in MST and add it.
 	for (int i = 0; i < V-1; i++) {
 		int v = nearestNextNode(index, MSTbuffer);
 		MSTbuffer[v] = true;
@@ -195,12 +196,12 @@ void TSP::findMST() {
 			}
 		}
 	}
-
-	for (int v1 = 0; v1 < V; v1++) {
-		int v2 = parent[v1];
-		if (v2 != -1) {
-			adjacencyList[v1].push_back(v2);
-			adjacencyList[v2].push_back(v1);
+	// Update adjacency lists.
+	for (int i = 0; i < V; i++) {
+		int j = parent[i];
+		if (j != -1) {
+			adjacencyList[i].push_back(j);
+			adjacencyList[j].push_back(i);
 		}
 	}
 };
@@ -250,7 +251,7 @@ void TSP::matchMST() {
 				closestNode = *iter;
 				temp = iter;
 			}
-		}// Update adjacencyList.
+		}// Update adjacencyList and oddNodes.
 		adjacencyList[*first].push_back(closestNode);
 		adjacencyList[closestNode].push_back(*first);
 		oddNodes.erase(temp);
@@ -329,14 +330,14 @@ void TSP::hamiltonPath(vector<int> &path, int &pathLength) {
 
 /* Calls euler() by passing circuit vector then converts 
    resulting euler path to a Hamiltonian path updating
-   vector circuit. */
+   circuit vector. */
 void TSP::tourGen(int index) {
 	eulerPath(index, circuit);
 	hamiltonPath(circuit, pathLength);
 }
 
 /* Calls eulerPath() and hamiltonPath() but passes a utiity vector
-   path for updating thus finds a path length from a specified
+   path for updating, thus finds a path length from a specified
    node and returns it.  Called by Threads::run().     */
 int TSP::findBestPath(int index) {
 	vector<int>path;

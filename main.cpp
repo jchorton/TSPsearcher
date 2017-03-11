@@ -1,6 +1,6 @@
 /******************************************************************************
 * TSP is a approximation solution for the special case Euclidian Distance 
-* Traveleing Salesman Problem utilizing the Christofides algorithm [8]:
+* Traveling Salesman Problem utilizing the Christofides algorithm [8]:
 *   Create a minimum spanning tree T of G.
 *   Let O be the set of vertices with odd degree in T.
 *   Find min-weight matching M in induced subgraph given by vertices from O.
@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
 		incVar = V;
 	if (incVar_overRide == true) {
 		incVar = 1;
-		cout << "Note: Time required to reach Optimal Solution unrestricted!\n";
+		cout << "Note: Time required to reach Optimal Solution unrestricted!\nProcessing...\n";
 	}
 
 	// Start at node:
@@ -151,10 +151,10 @@ int main(int argc, char** argv) {
 	// Store best pathLength.
 	tsp.tourGen(bplIndex);
 
-	// Attempt to further optimze solution.
-	for (int i = 0; i < RUN_SHORTER; i++) {
-		tsp.call2Opt();
-	}
+//	// Attempt to further optimze solution.
+//	for (int i = 0; i < RUN_SHORTER; i++) {
+//		tsp.call2Opt();
+//	}
 
 	// stdout >> *.tour file.
 	tsp.printResult();

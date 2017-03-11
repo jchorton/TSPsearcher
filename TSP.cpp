@@ -185,7 +185,7 @@ void TSP::findMST() {
 	index[0] = 0;
 	parent[0] = -1;
 
-	for (int i = 0; i < V - 1; i++) {
+	for (int i = 0; i < V-1; i++) {
 		int v = nearestNextNode(index, MSTbuffer);
 		MSTbuffer[v] = true;
 		for (int u = 0; u < V; u++) {
@@ -336,7 +336,7 @@ void TSP::tourGen(int index) {
 }
 
 /* Calls eulerPath() and hamiltonPath() but passes a utiity vector
-   path for updateing for finding a path length from a specified
+   path for updating thus finds a path length from a specified
    node and returns it.  Called by Threads::run().     */
 int TSP::findBestPath(int index) {
 	vector<int>path;

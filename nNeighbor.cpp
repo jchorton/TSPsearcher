@@ -2,7 +2,7 @@
  * CS 325 Project 4: Traveling Salesman Problem
  * Jonathan Horton / Chris Kearns / Dustin Pack
  * Created: 2017-03-04
- * Updated: 2017-03-06
+ * Updated: 2017-03-10
  *
  * This program will read in a file that consists
  * of city codes (in ascending integer order from
@@ -151,7 +151,7 @@ int removeValue(vector<int>& vect, int target) {
  * starts with the given city number.
  ******************************************************/
 int nearestNeighbor(vector<int>& X, vector<int>& Y, vector<int>& path, int start) {
-	int tempDist, tempCity;
+	int nextDist, nextCity;
 	vector<int> toVisit;
 
 	// Create a list of cities we need to visit still
@@ -164,20 +164,20 @@ int nearestNeighbor(vector<int>& X, vector<int>& Y, vector<int>& path, int start
 
 	// While we still have cities left in the list to visit... 
 	while ( !toVisit.empty() ) {
-		tempDist = INT_MAX;
-		tempCity = -1;
+		nextDist = INT_MAX;
+		nextCity = -1;
 
 		for (int counter = 0; counter < (int)toVisit.size(); counter++) {
 			// Find the nearest neighbor among cities left to visit!
-			if ( 	distCalc(X, Y, path[path.size() - 1], toVisit[counter]) < tempDist ) {
-				tempDist = distCalc(X, Y, path[path.size() - 1], toVisit[counter]);
-				tempCity = toVisit[counter];
+			if ( 	distCalc(X, Y, path[path.size() - 1], toVisit[counter]) < nextDist ) {
+				nextDist = distCalc(X, Y, path[path.size() - 1], toVisit[counter]);
+				nextCity = toVisit[counter];
 			}
 		}
 		
 		// Add the nearest unvisited neighbor to the path!
-		path.push_back(tempCity);
-		removeValue(toVisit, tempCity);
+		path.push_back(nextCity);
+		removeValue(toVisit, nextCity);
 	}
 
 	if ( path.size() != X.size() ) {
@@ -195,6 +195,7 @@ int nearestNeighbor(vector<int>& X, vector<int>& Y, vector<int>& path, int start
 int main(int argc, char** argv) {
 	vector<int> cityX, cityY; 	// store city coordinates
 	vector<int> path; 		// store path traveling to cities
+	vector<int> newPath;
 
 	// Check usage
 	if (argc < 2) {
@@ -213,13 +214,13 @@ int main(int argc, char** argv) {
 
 	// Start a timer for algorithm testing
 	std::clock_t start;
-	double duration;
+	double duration = 0;
 	start = std::clock();
 
 
-	/******************************
-	 * ALGORITHM CHOICE GOES HERE
-	 ******************************/
+	/****************************
+	 * ALGORITHM IS CALLED HERE
+	 ****************************/
 
 	// Calling Nearest Neighbor Algorithm with a start point of city 0
 	if ( nearestNeighbor(cityX, cityY, path, 0 ) == -1 ) {
@@ -227,9 +228,27 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	// Now we try more starting points until we use all the cities or run out of time
+	int cityCounter = 1, savedCity = 0;
+	while ( duration < 90 && cityCounter < (int)cityX.size() ) {
+		// Populate a new path
+		if ( nearestNeighbor(cityX, cityY, newPath, cityCounter) ) {
+			cout << "Algorithm 1 error!" << endl;
+			return 1;
+		}
 
+		// If new path is better than old path, switch them!
+		if ( totalDist(cityX, cityY, newPath) < totalDist(cityX, cityY, path) ) {
+			path.swap(newPath);
+			savedCity = cityCounter;
+		}
 
-
+		// update time elapsed and prepare for next city
+		duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+		cityCounter++;
+		newPath.clear();
+	}
+	
 
 
 
@@ -238,6 +257,7 @@ int main(int argc, char** argv) {
 	cout << "Processing time: " << duration << endl;
 
 	// Display length of path found
+	cout << "First city is num: " << savedCity << endl;
 	cout << "Total path length: " << totalDist(cityX, cityY, path) << endl;
 
 	// Save the tour as a file!

@@ -1,13 +1,13 @@
-##############################################################################
+###############################################################################
 # makefile for Project4: Traveling Salesman Problem
 # CS325-400-W17	17 Mar 2017
 # Jonathan Horton	hortonjo@oregonstate.edu
 # Chris Kearns		kearnsc@oregonstate.edu
 # Dustin Pack		packdu@oregonstate.edu
-##############################################################################
+###############################################################################
 CFLAGS = -Wall -lm -lpthread -std=c++0x
 
-all: TSP.h TSP.cpp Threads.h Threads.cpp main.cpp
+all: TSP.h TSP.cpp Threads.h Threads.cpp main.cpp nNeighbor.cpp
 	g++ -o TSP TSP.h TSP.cpp Threads.h Threads.cpp main.cpp $(CFLAGS)
 	g++ -o nNeighbor nNeighbor.cpp $(CFLAGS)
 

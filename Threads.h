@@ -1,25 +1,20 @@
-/******************************************************************************
+/*******************************************************************************
 * Threads.h abstract header file for Threads.cpp
 * CS-325-400-W17	Project 4		17 March 2017
 * Jonathan Horton	hortonjo@oregonstate.edu
 * Chris Kearns		kearnsc@oregonstate.edu
 * Dustin Pack		packdu@oregonstate.edu
-******************************************************************************/
+*******************************************************************************/
 #ifndef THREADS_H
 #define THREADS_H
 
 #include <pthread.h>
 #include "TSP.h"
 
-using namespace std;
-
 class Thread {
 private:
 	pthread_t tid;
 	static void *execute(void *thread);
-
-protected:
-
 public:
 	Thread() {
 		aThread = NULL;
@@ -31,8 +26,8 @@ public:
 	virtual void runTSPonThisThread();
 	void start();
 	void join();
-	int startNode;
 	TSP *aThread;
+	int startNode;
 	int TSPid;
 };
 #endif

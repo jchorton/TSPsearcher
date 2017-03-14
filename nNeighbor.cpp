@@ -2,7 +2,7 @@
  * CS 325 Project 4: Traveling Salesman Problem
  * Jonathan Horton / Chris Kearns / Dustin Pack
  * Created: 2017-03-04
- * Updated: 2017-03-10
+ * Updated: 2017-03-14
  *
  * This program will read in a file that consists
  * of city codes (in ascending integer order from
@@ -196,11 +196,19 @@ int main(int argc, char** argv) {
 	vector<int> cityX, cityY; 	// store city coordinates
 	vector<int> path; 		// store path traveling to cities
 	vector<int> newPath;
+	bool infTime = false;
 
 	// Check usage
-	if (argc < 2) {
-		cout << "USAGE: " << argv[0] << " [inputFile]" << endl;
-		return 0;
+	if (argc < 2 || argc > 4) {
+		cout << "USAGE: " << argv[0] << " [inputFile] [optional int 1]" << endl;
+		return 1;
+	} else if (argc == 3) {
+		if (atoi(argv[2]) < 1 || atoi(argv[2]) > 1) {
+			cout << "Optional argument must be 1 or omitted!" << endl;
+			return 1;		
+		} else {
+			infTime = true;
+		}
 	}
 	
 	// Convert the filename to a string to keep track of it.
@@ -230,7 +238,7 @@ int main(int argc, char** argv) {
 
 	// Now we try more starting points until we use all the cities or run out of time
 	int cityCounter = 1, savedCity = 0;
-	while ( duration < 90 && cityCounter < (int)cityX.size() ) {
+	while ( (duration < 90 || infTime) && cityCounter < (int)cityX.size() ) {
 		// Populate a new path
 		if ( nearestNeighbor(cityX, cityY, newPath, cityCounter) ) {
 			cout << "Algorithm 1 error!" << endl;
@@ -255,6 +263,7 @@ int main(int argc, char** argv) {
 	// Display time elapsed
 	duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
 	cout << "Processing time: " << duration << endl;
+	cout << "Cities checked : " << cityCounter << endl;
 
 	// Display length of path found
 	cout << "First city is num: " << savedCity << endl;

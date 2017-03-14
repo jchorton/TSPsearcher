@@ -9,27 +9,24 @@
 
 // Called from main() once thread setup and partitioning routines complete.
 void Thread::start() {
-	int temp;
-	if ((temp = pthread_create(&tid, NULL, &Thread::exec, this)) != 0) {
-		cout << strerror(temp) << "/n";
-	}
+	pthread_create(&tid, NULL, &Thread::execute, this);
 }
 
-// Each thread is run from here.
-void *Thread::exec(void *thread) {
-	((Thread *)thread)->run();
+// Each thread is run from here. Cannot be called from main() as set private.
+void *Thread::execute(void *thr) {
+	((Thread *)thr)->runTSPonThisThread();
 	return NULL;
 }
 
-// Called from Thread::exec() above.
-void Thread::run() {
+// Called from Thread::execute() above.
+void Thread::runTSPonThisThread() {
 	int result = aThread->findBestPath(startNode);
 	aThread->allPathLengths[TSPid][0] = startNode;
 	aThread->allPathLengths[TSPid][1] = result;
 	pthread_exit(0);
 }
 
-// Wait for thread termination status.
+// Wait for thread termination status. Called from main().
 void Thread::join() {
 	void *threadStatus;
 	int temp = pthread_join(tid, &threadStatus);

@@ -11,10 +11,12 @@
 #include <pthread.h>
 #include "TSP.h"
 
+using namespace std;
+
 class Thread {
 private:
 	pthread_t tid;
-	static void *exec(void *thread);
+	static void *execute(void *thread);
 
 protected:
 
@@ -25,13 +27,12 @@ public:
 		TSPid = -1;
 		startNode = -1;
 	};
-
 	virtual ~Thread() {};
-	virtual void run();
+	virtual void runTSPonThisThread();
 	void start();
 	void join();
-	TSP *aThread;
 	int startNode;
+	TSP *aThread;
 	int TSPid;
 };
 #endif

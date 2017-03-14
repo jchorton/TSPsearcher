@@ -10,5 +10,9 @@ CFLAGS = -Wall -lm -lpthread -std=c++0x
 all: TSP.h TSP.cpp Threads.h Threads.cpp main.cpp
 	g++ -o TSP TSP.h TSP.cpp Threads.h Threads.cpp main.cpp $(CFLAGS) 
 
+run:
+	TSP tsp_example_2.txt
+	python tsp-verifier.py tsp_example_2.txt tsp_example_2.txt.tour
+
 clean:
 	rm -f TSP *.tour

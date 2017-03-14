@@ -9,7 +9,7 @@ CFLAGS = -Wall -lm -lpthread -std=c++0x
 
 all: TSP.h TSP.cpp Threads.h Threads.cpp main.cpp
 	g++ -o TSP TSP.h TSP.cpp Threads.h Threads.cpp main.cpp $(CFLAGS)
-	g++ -o nNeighnor nNeighbor.cpp $(CFLAGS)
+	g++ -o nNeighbor nNeighbor.cpp $(CFLAGS)
 
 # Testing retricted time:
 run:

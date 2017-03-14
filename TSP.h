@@ -32,8 +32,7 @@ using std::string;
 #include <vector>
 using std::vector;
 
-#define DEBUG 0
-#define NUM_THREADS 6
+#define NUM_THREADS 1
 #define RUN_SHORTER 5
 
 class TSP {
@@ -42,41 +41,42 @@ private:
 		int X;
 		int Y;
 	};
+
 	string inFileName;
 	string outFileName;
 	vector<int>oddNodes;
-	void getCityCount();
 	void findOddNodes();
 	int nearestNextNode(int *index, bool *MSTBuffer);
+
 protected:
 
 public:
-	TSP(string in, string out);
+	TSP(string inFile, string outFile);
 	~TSP();
-	// Variables and containers:
+	// Variables and containers.
 	int V;
 	vector<City>cities;
-	int **graph;
-	int pathLength;
 	vector<int>circuit;
 	vector<int> *adjacencyList;
-	int startIndex[NUM_THREADS];
+	int **graph;
+	int pathLength;
+	int beginIndex[NUM_THREADS];
 	int endIndex[NUM_THREADS];
 	int **allPathLengths;
-	// Methods:
-	int calcDistance(struct City city1, struct City city2);
-	void readCities();
-	void loadMatrix(int threadGaurd);
+	// Methods.
+	int calcDistance(struct City c1, struct City c2);
+	void readCityData();
+	void loadMatrix();
 	void findMST();
 	void matchMST();
-	int findBestPath(int index);
-	void tourGen(int index);
-	void eulerPath(int index, vector<int> &path);
-	void hamiltonPath(vector<int> &path, int&pathLength);
-	int _2Opt(int **graph, vector<int> &path, int &pathLength, int V);
-	void call2Opt();
-	bool pathIsShorter(int **graph, int v1, int v2, int v3, int v4, int &pathLength);
-	void edgeSwap(vector<int> &path, int start, int end, int V);
+	int findBestPath(int);
+	void tourGen(int);
+	void eulerCircuit(int pos, vector<int> &);
+	void hamiltonCircuit(vector<int> &, int&);
+	int pathIsShorter(int **graph, int v1, int v2, int v3, int v4, int &total_distance);
+	int _2Opt(int **graph, vector<int> &path, int &pathLength, int n);
+	void edgeSwap(vector<int> &path, int start, int end, int n);
+	void optimize();
 	void printResult();
 };
 #endif

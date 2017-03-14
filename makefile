@@ -70,4 +70,4 @@ run1:
 #	python tsp-verifier.py test-input-7.txt test-input-7.txt.tour
 
 clean:
-	rm -f TSP *.tour
+	rm -f TSP nNeighbor *.tour

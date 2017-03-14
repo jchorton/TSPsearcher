@@ -1,17 +1,17 @@
 /******************************************************************************
 * TSP is an implementation of the approximation solution for the special case
 * Euclidian Distance Traveling Salesman Problem utilizing the Christofides
-* algorithm [8]:
+* algorithm [10]:
 *  Create a minimum spanning tree T of complete undirected graph G.
 *  Let O be the set of vertices with odd degree in T. Set O will have an even
-   number of vertices.
+number of vertices.
 *  Find a minimum-weight perfect matching M in the induced subgraph given by
-   the vertices from O.
+the vertices from O.
 *  Combine the edges of M and T to form a connected multigraph H in which each
-   vertex has even degree.
+vertex has even degree.
 *  Form an Eulerian circuit in H.
 *  Make the Eulerian circuit into a Hamiltonian circuit by skipping repeated
-   vertices (shortcutting).
+vertices (shortcutting).
 * main.cpp, dependent on Threads.h, Threads.cpp, TSP.h, and TSP.cpp
 * CS-325-400-W17	Project 4		17 March 2017
 * Jonathan Horton	hortonjo@oregonstate.edu
@@ -55,136 +55,126 @@ int main(int argc, char** argv) {
 	inFile = outFile = argv[1];
 	outFile.append(".tour");
 
-	// Create new tsp object.
+	// Create tsp object.
 	TSP tsp(inFile, outFile);
 	int V = tsp.V;
 
 	// Read cities from input file.
-	tsp.readCities();
+	tsp.readCityData();
 	cout << "Number of cities read from file: " << tsp.V << "\n";
 
-	// Base case V == 0, V == 2. V == 1 works!
-	int oneStopTrip;
-	if (V == 0) {
-		cout << "InputFile empty! Please check your file and try again!\n";
-		exit(1);
-	} else if (V == 2) {// V == 1 works!
-		oneStopTrip = tsp.calcDistance(tsp.cities[0], tsp.cities[1]);
-		cout << "Just two cities entered, distance = " << oneStopTrip << "\n";
-		exit(0);
-	}
+	// Fill N x N matrix with distances between nodes
+	tsp.loadMatrix();
 
-	// Guard against cities < NUM_THREADS.
-	int threadGaurd;
-	if (V < NUM_THREADS) {
-		threadGaurd = V;
-	} else {
-		threadGaurd = NUM_THREADS;
-	}
-
-	// Populate V x V matrix with calculated edge distances.
-	tsp.loadMatrix(threadGaurd);
-
-	// Find an MST in graph using Prim's algorithm.
+	// Find a MST T in graph G
 	tsp.findMST();
 
-	// Find a "perfect" minimum weighted matching MST.
+	// Find a minimum weighted matching M for odd vertices in T
 	tsp.matchMST();
 
-	// Create array of thread objects.
-	Thread threads[threadGaurd];
+	// Create array of thread objects
+	Thread threads[NUM_THREADS];
 
-	int pathLength = INT_MAX;
-	int bplIndex;
-	int terminus = threadGaurd;
+	int best = INT_MAX;
+	int bestIndex;
+	int stop_here = NUM_THREADS;
 
-	/* This block used to fine tune the execution time of TSP
-		when running higher values of input cities vs. the desired
-		level of accuracy.  Test against known optimal solutions.
-		Formula developed from fit data targeting ~90 seconds, which 
-		is needed as V approaches 15,000.  Once V gets to ~15,000,
-		then incVar = V. */
+	// Amount to increment starting node by each time
+	int increment = 1; // by 1 if n < 1040
 
-	// Advance starting node incVar for each run by:
-	int incVar = 5.18 * pow(10, -10) * pow(V, 3.224) + 0.5;
-	if (incVar < 1)
-		incVar = 1;
-	if (incVar > V) 
-		incVar = V;
-	if (incVar_overRide == true) {
-		incVar = 1;
-		cout << "Note: Time required to reach Optimal Solution unrestricted!\nProcessing...\n";
-	}
-	else {
-		cout << "Processing...\n";
-	}
+	if (V >= 600 && V < 1040)
+		increment = 3;
+	else if (V >= 1040 && V < 1800)
+		increment = 8;
+	else if (V >= 1800 && V < 3205)
+		increment = 25; 		// ~ 220s @ 3200
+	else if (V >= 3205 && V < 4005)
+		increment = 50; 		// ~ 230s @ 4000
+	else if (V >= 4005 && V < 5005)
+		increment = 120;		// ~ 200 @ 5000
+	else if (V >= 5005 && V < 6500)
+		increment = 250;		// ~ 220s @ 6447
+	else if (V >= 6500)
+		increment = 500;
 
-	// Start at node:
+	int remaining = V;
+
+	// Start at node zero
 	int node = 0;
 
-	// Count to get thread ids.
+	// Count to get thread ids
 	int count = 0;
 
-	// Thread manager - incrementaly advance by (NUM_THREADS * incVar) nodes.
-	int spool = V;
-	while (spool >= incVar) {
-		if (spool < (threadGaurd * incVar)) {
-			terminus = spool / incVar;
+	while (remaining >= increment) {
+		// Keep track iteration when last node will be reached
+		if (remaining < (NUM_THREADS * increment)) {
+
+			// each iteration advances NUM_THREADS * increment nodes
+			stop_here = remaining / increment;
 		}
-		for (int i = 0; i < terminus; i++) {
-			threads[i].aThread = &tsp;
-			threads[i].startNode = node;
-			threads[i].TSPid = count;
-			threads[i].start(); // See Thread::start().
-			node += incVar;
+
+		for (long t = 0; t < stop_here; t++) {
+			//cout << "Thread " << count << " starting at node " << node << endl;
+			threads[t].startNode = node;
+			threads[t].TSPid = count;
+			threads[t].aThread = &tsp;
+			threads[t].start();
+			node += increment;
 			count++;
 		}
-		// Wait for all threads to finish.
-		for (int t = 0; t < terminus; t++) {
+
+		// Wait for all the threads
+		for (long t = 0; t < stop_here; t++) {
 			threads[t].join();
 		}
-		spool -= (terminus * incVar);
+		remaining -= (stop_here * increment);
 	}
 
-	cout << "Number of cities processed: " << count << "\n";
-
-	// Find shortest path!
-	for (int i = 0; i < count; i++) {
-		if (tsp.allPathLengths[i][1] < pathLength) {
-			bplIndex = tsp.allPathLengths[i][0];
-			pathLength = tsp.allPathLengths[i][1];
+	cout << "count: " << count << endl;
+	// Loop through each index used and find shortest path
+	for (long t = 0; t < count; t++) {
+		if (tsp.allPathLengths[t][1] < best) {
+			bestIndex = tsp.allPathLengths[t][0];
+			best = tsp.allPathLengths[t][1];
 		}
 	}
 
-	// Store best pathLength.
-	tsp.tourGen(bplIndex);
+	stop = clock();
+	cout << "\nbest: " << best << " @ index " << bestIndex << "\n";
+	cout << "time: " << ((float)(stop - start)) / CLOCKS_PER_SEC << "s\n";
 
-	// stdout >> *.tour file.
+	// Store best path
+	tsp.tourGen(bestIndex);
+	tsp.optimize();
+
+	cout << "\nFinal length: " << tsp.pathLength << "\n";
+
+	// Print to file
 	tsp.printResult();
 
-	stop = clock();
-	cout << "TSP's Best Path Length: " << pathLength << " when starting at city " << bplIndex << "\n";
-	cout << "Time to solution: " << ((float)(stop - start)) / CLOCKS_PER_SEC << " seconds.\n";
-	
 	return 0;
 }
 
 /* CITATIONS: Code adapted from the following:
 [1] Various lecture materials, algorithms, and programs, CS325-400-W17, J. Shulfort, et. al. @Oregon State University.
-[2] http://man7.org/linux/man-pages/man3/pthread_create.3.html
-[3] http://man7.org/linux/man-pages/man3/strerror.3.html
-[4] https://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
-[5] https://www.go4expert.com/articles/writing-multithreaded-program-cpp-t29980/
-[6] Various lecture materials and programs, CS344-400-F16, B. Brewster, et. al. @Oregon State University.
-[7] "C++ Multithreading Cookbook", 2014, M. Ljumovic.
-[8] "C++ Concurrency in Action: Practical Multithreading", 1st Ed., A Williams.
-[9] https://en.wikipedia.org/wiki/Christofides_algorithm
-[10] http://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
-[11] http://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
-[12] http://www.geeksforgeeks.org/eulerian-path-and-circuit/
-[13] http://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
-[14] http://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
-[15] http://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
+[2] h ttp://man7.org/linux/man-pages/man3/pthread_create.3.html
+[3] h ttp://man7.org/linux/man-pages/man3/pthread_join.3.html
+[4] h ttp://man7.org/linux/man-pages/man3/strerror.3.html
+[5] h ttps://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
+[6] h ttps://www.go4expert.com/articles/writing-multithreaded-program-cpp-t29980/
+[7] Various lecture materials and programs, CS344-400-F16, B. Brewster, et. al. @Oregon State University.
+[8] "C++ Multithreading Cookbook", 2014, M. Ljumovic.
+[9] "C++ Concurrency in Action: Practical Multithreading", 1st Ed., A. Williams.
+[10] h ttps://en.wikipedia.org/wiki/Christofides_algorithm
+[11] h ttp://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
+[12] h ttp://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
+[13] h ttp://www.geeksforgeeks.org/eulerian-path-and-circuit/
+[14] h ttp://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
+[15] h ttp://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/
+[16] h ttp://www.geeksforgeeks.org/branch-bound-set-5-traveling-salesman-problem/
+[17] h ttp://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
+[18] h ttp://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
+[19] h ttp://www.jot.fm/issues/issue_2003_07/column8/
 
 Optimal tour lengths:
 tsp_example_1.txt = 108159

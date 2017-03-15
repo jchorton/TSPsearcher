@@ -20,6 +20,7 @@
 * Requires input file 3 x n, space delmited, int city, int x-coor, int y-coor.
 *******************************************************************************/
 #include <climits>
+#include <time.h>
 #include "TSP.h"
 #include "Threads.h"
 
@@ -46,9 +47,11 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	struct timespec start, end;
+	double elapsed;
+
 	// Start timing
-	clock_t start, stop;
-	start = clock();
+	clock_gettime(CLOCK_MONOTONIC, &start);
 
 	// Read in file names.
 	string inFile, outFile;
@@ -101,7 +104,7 @@ int main(int argc, char** argv) {
 
 	/* This block used to fine tune the execution time of TSP
 		when running higher values of input cities vs. the desired
-		level of accuracy.  Test against known optimal solutions.
+		level of accuracy.  Tested against known optimal solutions.
 		Formula developed from fit data targeting ~90 seconds, which 
 		is needed as V approaches 15,000.  Once V gets to ~15,000,
 		then incVar = V. */
@@ -165,10 +168,13 @@ int main(int argc, char** argv) {
 	// stdout >> *.tour file.
 	tsp.printResult();
 
-	stop = clock();
+	// End timer.
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	elapsed = (end.tv_sec - start.tv_sec);
+	elapsed += (end.tv_nsec - start.tv_nsec) / 1000000000.0;
+
 	cout << "TSP's Best Path Length: " << tsp.pathLength << " when starting at city " << bplIndex << "\n";
-	cout << "Time to solution: " << ((float)(stop - start)) / CLOCKS_PER_SEC << " seconds.\n";
-	
+	cout << "Time to solution: " << elapsed << " seconds.\n";
 	return 0;
 }
 
@@ -192,6 +198,7 @@ int main(int argc, char** argv) {
 [17] h ttp://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
 [18] h ttp://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
 [19] h ttp://www.jot.fm/issues/issue_2003_07/column8/
+[20] h ttp://stackoverflow.com/questions/2962785/c-using-clock-to-measure-time-in-multi-threaded-programs/2962914#2962914
 
 Optimal tour lengths:
 tsp_example_1.txt = 108159

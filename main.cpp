@@ -188,17 +188,18 @@ int main(int argc, char** argv) {
 [7] Various lecture materials and programs, CS344-400-F16, B. Brewster, et. al. @Oregon State University.
 [8] "C++ Multithreading Cookbook", 2014, M. Ljumovic.
 [9] "C++ Concurrency in Action: Practical Multithreading", 1st Ed., A. Williams.
-[10] h ttps://en.wikipedia.org/wiki/Christofides_algorithm
-[11] h ttp://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
-[12] h ttp://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
-[13] h ttp://www.geeksforgeeks.org/eulerian-path-and-circuit/
-[14] h ttp://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
-[15] h ttp://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/
-[16] h ttp://www.geeksforgeeks.org/branch-bound-set-5-traveling-salesman-problem/
-[17] h ttp://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
-[18] h ttp://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
-[19] h ttp://www.jot.fm/issues/issue_2003_07/column8/
-[20] h ttp://stackoverflow.com/questions/2962785/c-using-clock-to-measure-time-in-multi-threaded-programs/2962914#2962914
+[10] "C++ Implementation of TSP using Christofides and 2-opt", R. Sagalyn, 2013. 
+[11] h ttps://en.wikipedia.org/wiki/Christofides_algorithm
+[12] h ttp://www.geeksforgeeks.org/greedy-algorithms-set-5-prims-minimum-spanning-tree-mst-2/
+[13] h ttp://www.sanfoundry.com/cpp-program-find-mst-prims-algorithm/
+[14] h ttp://www.geeksforgeeks.org/eulerian-path-and-circuit/
+[15] h ttp://www.sanfoundry.com/cpp-program-find-hamiltonian-cycle/
+[16] h ttp://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/
+[17] h ttp://www.geeksforgeeks.org/branch-bound-set-5-traveling-salesman-problem/
+[18] h ttp://www.geeksforgeeks.org/backtracking-set-7-hamiltonian-cycle/
+[19] h ttp://www.technical-recipes.com/2012/applying-c-implementations-of-2-opt-to-travelling-salesman-problems/
+[20] h ttp://www.jot.fm/issues/issue_2003_07/column8/
+[21] h ttp://stackoverflow.com/questions/2962785/c-using-clock-to-measure-time-in-multi-threaded-programs/2962914#2962914
 
 Optimal tour lengths:
 tsp_example_1.txt = 108159
